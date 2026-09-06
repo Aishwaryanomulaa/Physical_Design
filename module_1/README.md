@@ -105,7 +105,7 @@ IP stands for **Intellectual Property**. An IP block is a reusable functional bl
 
 ### Screenshot
 
-![Chip Design Core](screenshots/01_chip_design_core.png)
+![Chip Design Core](screenshorts/01_chip_design_core.png)
 
 ---
 
