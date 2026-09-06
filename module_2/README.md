@@ -1,489 +1,250 @@
-# SKY130 Module 2
+# SKY130 Module 2 – Floorplanning, Placement and Cell Characterization
 
-## Good Floorplan vs Bad Floorplan and Introduction to Library Cells
+## Overview
 
-This module covers the basic concepts of **chip floorplanning, library binding, placement, standard-cell design, characterization, and timing characterization** using the SKY130 technology.
+This module covers the physical design stages after RTL synthesis, with emphasis on:
+
+- Chip floorplanning
+- Utilization factor and aspect ratio
+- Pre-placed cells
+- Decoupling capacitors
+- Power planning
+- Pin placement and placement blockages
+- OpenLANE floorplan generation
+- Floorplan file analysis
+- Placement optimization
+- Library binding and characterization
+- Cell design and characterization
+- Timing characterization
 
 ---
 
-# Module 2 Contents
+# SKY130_D2_SK1 – Chip Floorplanning Considerations
 
-* [SKY130_D2_SK1 - Chip Floorplanning Considerations](#sky130_d2_sk1---chip-floorplanning-considerations)
-* [SKY130_D2_SK2 - Library Binding and Placement](#sky130_d2_sk2---library-binding-and-placement)
-* [SKY130_D2_SK3 - Cell Design and Characterization Flows](#sky130_d2_sk3---cell-design-and-characterization-flows)
-* [SKY130_D2_SK4 - General Timing Characterization Parameters](#sky130_d2_sk4---general-timing-characterization-parameters)
+## 1. Chip Floorplanning Considerations
 
----
+Floorplanning determines the dimensions and organization of the chip core and die.
 
-# SKY130_D2_SK1 - Chip Floorplanning Considerations
+Important considerations include:
 
-## 1. Chip Floorplanning
+- Core and die dimensions
+- Utilization factor
+- Aspect ratio
+- Placement of standard cells
+- Placement of macros and pre-placed cells
+- Power distribution
+- I/O pin placement
+- Placement blockages
 
-Floorplanning is one of the important stages of the physical design flow.
-
-It determines the physical organization of the chip, including:
-
-* Die dimensions
-* Core dimensions
-* Standard-cell placement
-* I/O pin locations
-* Power distribution
-* Placement blockages
-* Macro locations
-
-A good floorplan helps reduce routing congestion and improves overall chip performance.
-
-### Good Floorplan vs Bad Floorplan
-
-A good floorplan should have:
-
-* Proper utilization
-* Suitable aspect ratio
-* Adequate routing resources
-* Proper power distribution
-* Efficient placement of macros and cells
-* Reduced congestion
-
-A poor floorplan may cause:
-
-* Routing congestion
-* Increased wire length
-* Timing violations
-* Poor power distribution
-* Difficult routing
+![Chip Floorplanning Considerations](screenshots/01_chip_floorplanning_considerations.png)
 
 ---
 
 ## 2. Utilization Factor and Aspect Ratio
 
-### Utilization Factor
+The utilization factor represents the percentage of the core area occupied by the design.
 
-Utilization factor represents the percentage of the core area occupied by standard cells.
+**Utilization Factor:**
 
-```text
-Utilization Factor =
+`Utilization Factor = Area Occupied by Netlist / Total Core Area`
 
-Area occupied by standard cells
--------------------------------- × 100
-Total core area
-```
+**Aspect Ratio:**
 
-Higher utilization improves area efficiency but can increase routing congestion.
+`Aspect Ratio = Height / Width`
 
-Lower utilization provides more routing space but increases the overall chip area.
-
-### Aspect Ratio
-
-The aspect ratio is the ratio between the width and height of the core.
-
-```text
-Aspect Ratio = Core Width / Core Height
-```
-
-An aspect ratio of approximately 1 represents a square-shaped core.
+![Utilization Factor and Aspect Ratio](screenshots/02_Utilization_factor_and_Aspect_ratio.png)
 
 ---
 
 ## 3. Pre-Placed Cells
 
-Pre-placed cells are cells or blocks whose locations are fixed before the standard-cell placement stage.
+Pre-placed cells or blocks are placed at fixed locations before standard-cell placement.
 
 Examples include:
 
-* Memory blocks
-* Macros
-* IP blocks
-* Large functional blocks
+- Macros
+- Memory blocks
+- IP blocks
+- Analog blocks
 
-Proper placement of these blocks is important because they affect:
-
-* Routing
-* Timing
-* Congestion
-* Power distribution
+![Pre-Placed Cells](screenshots/03_Pre_placed_cells.png)
 
 ---
 
 ## 4. Decoupling Capacitors
 
-Decoupling capacitors, also called **decap cells**, help maintain a stable local power supply.
+Decoupling capacitors help stabilize the local power supply by providing temporary charge when switching activity causes voltage fluctuations.
 
-When multiple cells switch simultaneously, they can cause temporary variations in the supply voltage.
-
-Decap cells help reduce:
-
-* Supply voltage fluctuations
-* Power supply noise
-* Local voltage drop
-
-They provide local charge near the cells when required.
+![Decoupling Capacitors](screenshots/04_Decoupling_capacitors.png)
 
 ---
 
 ## 5. Power Planning
 
-Power planning is used to distribute power throughout the chip.
+Power planning creates the power distribution network required to deliver stable VDD and VSS supplies throughout the chip.
 
-The power distribution network generally contains:
-
-* VDD
-* VSS
-* Power rings
-* Power straps
-* Standard-cell power rails
-
-A properly designed power network provides reliable power to all cells and helps reduce IR drop.
+![Power Planning](screenshots/05_Power_planing.png)
 
 ---
 
-## 6. Pin Placement and Logical Cell Placement Blockages
+## 6. Pin Placement and Placement Blockages
 
-Input and output pins must be placed carefully to make routing efficient.
+Pin placement determines the locations of input/output pins around the chip boundary.
 
-Poor pin placement can cause:
+Placement blockages are used to prevent standard cells from being placed in reserved regions.
 
-* Long routing paths
-* Routing congestion
-* Timing problems
-
-Placement blockages are regions where standard cells are not allowed to be placed.
-
-They can be used around:
-
-* Macros
-* I/O regions
-* Reserved areas
-* Routing-sensitive regions
+![Pin Placement and Placement Blockages](screenshots/06_Pin_placement_and_Placement_blockages.png)
 
 ---
 
-## 7. Steps to Run Floorplan Using OpenLANE
+## 7. OpenLANE Floorplan Run
 
-OpenLANE can be used to automate the physical design flow.
+The OpenLANE flow was used to generate the floorplan for the `picorv32a` design.
 
-The basic flow is:
+The floorplan stage generates the physical representation of the synthesized design.
 
-```text
-RTL
- ↓
-Synthesis
- ↓
-Floorplanning
- ↓
-Placement
- ↓
-CTS
- ↓
-Routing
- ↓
-Signoff
-```
-
-Floorplanning establishes the initial physical structure of the design.
+![OpenLANE Floorplan Run](screenshots/07_Openlane_floorplanning_run.png)
 
 ---
 
-## 8. Review Floorplan Files
+## 8. Floorplan Files
 
-After running the floorplan stage, several files are generated.
+The OpenLANE floorplan stage generates physical design files such as:
 
-Important files include:
+- DEF
+- LEF
+- Floorplan data
 
-* DEF files
-* LEF files
-* Verilog netlists
-* Configuration files
-* Reports
+The generated `picorv32a.floorplan.def` file contains the physical floorplan information.
 
-A **DEF (Design Exchange Format)** file contains physical design information such as:
-
-* Die area
-* Core area
-* Cell locations
-* Pin locations
-* Nets
-* Physical placement information
+![Floorplan Files](screenshots/08_.png)
 
 ---
 
-## 9. Review Floorplan Layout in Magic
+## 9. Floorplan Layout
 
-Magic can be used to visually inspect the generated layout.
+The generated floorplan can be reviewed visually to understand:
 
-The layout can be examined for:
+- Core boundary
+- Die boundary
+- I/O locations
+- Standard-cell region
+- Power structures
 
-* Die boundaries
-* Core boundaries
-* Standard cells
-* Macros
-* Pins
-* Power structures
-* Placement
+![Floorplan Layout](screenshots/08_floorplan_layout.png)
 
 ---
 
-# SKY130_D2_SK2 - Library Binding and Placement
+# SKY130_D2_SK2 – Library Binding and Placement
 
-## 1. Netlist Binding and Initial Placement
+## 10. Placement Optimization
 
-After synthesis, the RTL is converted into a gate-level netlist.
+Placement optimization attempts to arrange cells while considering estimated:
 
-During library binding, the logical cells in the netlist are mapped to cells available in the standard-cell library.
+- Wire length
+- Capacitance
+- Timing
+- Cell density
 
-The placement stage then determines the physical locations of these cells.
-
----
-
-## 2. Optimize Placement Using Estimated Wire Length and Capacitance
-
-Placement optimization considers:
-
-* Estimated wire length
-* Capacitance
-* Timing
-* Cell connectivity
-* Congestion
-
-The objective is to obtain an efficient placement with reduced wire length and improved timing.
-
-Shorter interconnects generally help reduce:
-
-* Delay
-* Capacitance
-* Power consumption
+![Placement Optimization](screenshots/09_placement_optimization.png)
 
 ---
 
-## 3. Final Placement Optimization
+## 11. Final Placement Optimization
 
-After initial placement, further optimization is performed.
+After initial placement, further optimization is performed to improve timing, wire length and placement quality.
 
-The placement is optimized to improve:
-
-* Timing
-* Wire length
-* Congestion
-* Cell locations
-
-The final placement should provide sufficient routing resources for the routing stage.
+![Final Placement Optimization](screenshots/10_Final_placement_optimization.png)
 
 ---
 
-## 4. Need for Libraries and Characterization
+## 12. Library Characterization and Modelling
 
-Standard-cell libraries provide the information required by synthesis and physical design tools.
+Standard-cell libraries contain electrical and timing information required during physical design and timing analysis.
 
-A standard-cell library can contain:
+Library characterization determines parameters such as:
 
-* Cell area
-* Cell function
-* Input capacitance
-* Delay
-* Power information
-* Timing arcs
-* Physical dimensions
+- Delay
+- Transition time
+- Power
+- Input capacitance
 
-Characterization is required to determine the electrical behavior of cells under different conditions.
+![Library Characterization and Modelling](screenshots/11_Libary_characterization_and_modelling.png)
 
 ---
 
-## 5. Congestion-Aware Placement Using RePlAce
+## 13. Netlist Binding and Initial Placement
 
-**RePlAce** is a global placement engine used in the OpenROAD flow.
+The synthesized netlist is mapped to technology-specific standard cells from the SKY130 library.
 
-It performs placement while considering factors such as:
+The cells are then prepared for physical placement.
 
-* Wire length
-* Routing congestion
-* Cell density
-
-Congestion-aware placement helps prevent routing problems during later stages of physical design.
+![Netlist Binding and Initial Placement](screenshots/12_.png)
 
 ---
 
-# SKY130_D2_SK3 - Cell Design and Characterization Flows
+# SKY130_D2_SK3 – Cell Design and Characterization Flow
 
-## 1. Inputs for Cell Design Flow
+## 14. Circuit Design
 
-The cell design process requires several inputs, including:
+The circuit design stage defines the transistor-level implementation of the standard cell.
 
-* Circuit specification
-* PDK
-* Technology information
-* Design rules
-* Transistor models
-* Supply voltage
-
-The SKY130 PDK provides the technology information required for designing standard cells.
+![Circuit Design](screenshots/13_circuit_design.png)
 
 ---
 
-## 2. Circuit Design Step
+## 15. Cell Design Flow
 
-The circuit is designed at the transistor level.
+The cell design process includes defining the required inputs and designing the circuit implementation according to the required functionality and performance.
 
-Important considerations include:
-
-* Circuit topology
-* Transistor sizing
-* Input/output connections
-* Power connections
-* Functional requirements
-
-The circuit must provide the required functionality while meeting performance requirements.
+![Cell Design Flow](screenshots/14_.png)
 
 ---
 
-## 3. Layout Design Step
+## 16. Layout Design
 
-The transistor-level circuit is converted into a physical layout.
+The transistor-level circuit is converted into a physical layout following the required technology design rules.
 
-The layout must satisfy:
-
-* Design rules
-* Connectivity requirements
-* Area constraints
-* Power requirements
-
-The layout represents the physical implementation of the standard cell.
+![Layout Design](screenshots/15_.png)
 
 ---
 
-## 4. Typical Characterization Flow
+# SKY130_D2_SK4 – General Timing Characterization Parameters
 
-The typical cell characterization flow can be represented as:
+## Timing Characterization
 
-```text
-Cell Circuit
-     ↓
-Cell Layout
-     ↓
-Parasitic Extraction
-     ↓
-SPICE Simulation
-     ↓
-Timing and Power Characterization
-     ↓
-Standard Cell Library
-```
+Timing characterization determines the delay and transition behavior of standard cells under different input conditions and loads.
 
-The resulting library information is used by EDA tools during:
+Important timing parameters include:
 
-* Synthesis
-* Placement
-* Timing analysis
-* Optimization
-
----
-
-# SKY130_D2_SK4 - General Timing Characterization Parameters
-
-## 1. Timing Threshold Definitions
-
-Timing characterization requires defined voltage thresholds to measure signal transitions consistently.
-
-Thresholds are used to determine:
-
-* Input transition time
-* Output transition time
-* Propagation delay
-
-These thresholds provide standard reference points for timing measurements.
-
----
-
-## 2. Propagation Delay
-
-Propagation delay is the time taken for a change at the input of a cell to produce the corresponding change at its output.
-
-```text
-Input changes
-      ↓
-Circuit responds
-      ↓
-Output changes
-```
-
-Propagation delay is an important parameter for determining the speed of a digital circuit.
-
----
-
-## 3. Transition Time
-
-Transition time represents how quickly a signal changes between specified voltage levels.
-
-Two important types are:
-
-* Rise transition time
-* Fall transition time
-
-A signal with a shorter transition time changes between logic levels more quickly.
-
----
-
-# Module 2 Key Learning Outcomes
-
-After completing this module, the following concepts are understood:
-
-* Chip floorplanning
-* Good and bad floorplans
-* Utilization factor
-* Aspect ratio
-* Pre-placed cells
-* Decoupling capacitors
-* Power planning
-* Pin placement
-* Placement blockages
-* OpenLANE floorplanning
-* Floorplan file analysis
-* Magic layout inspection
-* Library binding
-* Initial placement
-* Placement optimization
-* Congestion-aware placement
-* RePlAce
-* Standard-cell design
-* Cell characterization
-* Timing thresholds
-* Propagation delay
-* Transition time
+- Input transition
+- Output transition
+- Propagation delay
+- Timing thresholds
+- Load capacitance
 
 ---
 
 # Tools Used
 
-* OpenLANE
-* OpenROAD
-* RePlAce
-* Magic
-* SKY130 PDK
-* Standard-cell libraries
+- OpenLANE
+- SKY130 PDK
+- Yosys
+- OpenROAD
+- Linux
+- DEF/LEF physical design files
 
 ---
 
-# Module 2 Summary
+# Practical Work
 
-Module 2 introduces the transition from **logical design to physical design**.
+The practical work in this module was performed using the SKY130 OpenLANE environment.
 
-The major physical-design flow can be summarized as:
+### Design
+
+`picorv32a`
+
+### Floorplan Result
 
 ```text
-RTL
- ↓
-Synthesis
- ↓
-Floorplanning
- ↓
-Library Binding
- ↓
-Placement
- ↓
-Cell Characterization
- ↓
-Timing Characterization
- ↓
-Routing
-```
-
-Understanding floorplanning, placement, standard-cell libraries, characterization, and timing parameters is essential for implementing a reliable ASIC design.
-
+designs/picorv32a/runs/06-09_10-03/results/floorplan/picorv32a.floorplan.def
