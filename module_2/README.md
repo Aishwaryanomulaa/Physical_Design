@@ -244,7 +244,9 @@ The practical work in this module was performed using the SKY130 OpenLANE enviro
 
 `picorv32a`
 
-### Floorplan Result
+## Conclusion
+
+SKY130 Module 2 provided an understanding of the physical design flow, including floorplanning, utilization and aspect ratio, pre-placed cells, decoupling capacitors, power planning, pin placement, and placement optimization. The module also introduced standard-cell libraries, cell design, characterization, and timing parameters. Practical work with OpenLANE and the SKY130 PDK helped connect the theoretical concepts with actual floorplan generation and physical design files.
 
 ```text
 designs/picorv32a/runs/06-09_10-03/results/floorplan/picorv32a.floorplan.def
