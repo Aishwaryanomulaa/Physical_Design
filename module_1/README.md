@@ -104,6 +104,7 @@ Pads provide electrical connections between the internal circuitry and the outsi
 IP stands for **Intellectual Property**. An IP block is a reusable functional block used as part of a larger chip design.
 
 ### Screenshot
+
 ![Chip Design Core](./screenshots/01_chip_design_core.png)
 
 ---
